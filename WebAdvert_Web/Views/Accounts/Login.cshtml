@@ -25,10 +25,13 @@
                     @Html.DisplayName("Remember Me")
                 </div>
             </div>
-
             <button type="submit">Login</button>
             <div class="alert alert-info mt-5">
                 Not a member yet? <a asp-action="Signup" asp-controller="Accounts" class="btn">Click here to Sign Up!</a>
+            </div>
+
+            <div class="d-flex justify-content-center">
+                <a  asp-action="ForgotPassword" asp-controller="Accounts">Forgot your password?</a>
             </div>
         </form>
     </div>
