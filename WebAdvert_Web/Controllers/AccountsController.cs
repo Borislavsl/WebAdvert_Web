@@ -23,7 +23,7 @@ namespace WebAdvert_Web.Controllers
             _config = config;
         }
 
-        public async Task<IActionResult> Signup()
+        public IActionResult Signup()
         {
             var model = new SignupModel();
 
@@ -60,7 +60,7 @@ namespace WebAdvert_Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Confirm(ConfirmModel model)
+        public IActionResult Confirm(ConfirmModel model)
         {
             return View(model);
         }
