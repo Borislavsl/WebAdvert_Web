@@ -1,14 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using AdvertApi.Models.BS;
-using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
+using AdvertApi.Models.BS;
 using WebAdvert_Web.Models.AdvertManagement;
 using WebAdvert_Web.ServiceClients;
 using WebAdvert_Web.Services;
-
 
 namespace WebAdvert_Web.Controllers
 {
@@ -35,55 +34,42 @@ namespace WebAdvert_Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var createAdvertModel = _mapper.Map<CreateAdvertModel>(model);
+                CreateAdvertModel createAdvertModel = _mapper.Map<CreateAdvertModel>(model);
                 createAdvertModel.UserName = User.Identity.Name;
 
-                var apiCallResponse = await _advertApiClient.CreateAsync(createAdvertModel);
-                var id = apiCallResponse.Id;
+                AdvertResponse apiCallResponse = await _advertApiClient.CreateAsync(createAdvertModel);
+                string id = apiCallResponse.Id;
 
                 bool isOkToConfirmAd = true;
                 string filePath = string.Empty;
                 if (imageFile != null)
                 {
-                    var fileName = !string.IsNullOrEmpty(imageFile.FileName) ? Path.GetFileName(imageFile.FileName) : id;
+                    string fileName = !string.IsNullOrEmpty(imageFile.FileName) ? Path.GetFileName(imageFile.FileName) : id;
                     filePath = $"{id}/{fileName}";
 
                     try
                     {
-                        using (var readStream = imageFile.OpenReadStream())
+                        using (Stream readStream = imageFile.OpenReadStream())
                         {
-                            var result = await _fileUploader.UploadFileAsync(filePath, readStream);
+                            bool result = await _fileUploader.UploadFileAsync(filePath, readStream);
                             if (!result)
-                                throw new Exception(
-                                    "Could not upload the image to file repository. Please see the logs for details.");
+                                throw new Exception("Could not upload the image to file repository. Please see the logs for details.");
                         }
                     }
                     catch (Exception e)
                     {
                         isOkToConfirmAd = false;
-                        var confirmModel = new ConfirmAdvertRequest()
-                        {
-                            Id = id,
-                            FilePath = filePath,
-                            Status = AdvertStatus.Pending
-                        };
-                        await _advertApiClient.ConfirmAsync(confirmModel);
                         Console.WriteLine(e);
                     }
-
-
                 }
 
-                if (isOkToConfirmAd)
+                var confirmModel = new ConfirmAdvertRequest()
                 {
-                    var confirmModel = new ConfirmAdvertRequest()
-                    {
-                        Id = id,
-                        FilePath = filePath,
-                        Status = AdvertStatus.Active
-                    };
-                    await _advertApiClient.ConfirmAsync(confirmModel);
-                }
+                    Id = id,
+                    FilePath = filePath,
+                    Status = isOkToConfirmAd ? AdvertStatus.Active : AdvertStatus.Pending
+                };
+                await _advertApiClient.ConfirmAsync(confirmModel);
 
                 return RedirectToAction("Index", "Home");
             }

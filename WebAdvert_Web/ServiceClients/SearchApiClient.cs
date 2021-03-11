@@ -11,24 +11,23 @@ namespace WebAdvert_Web.ServiceClients
     public class SearchApiClient : ISearchApiClient
     {
         private readonly HttpClient _client;
-        private readonly string BaseAddress = string.Empty;
+        private readonly string _baseAddress = string.Empty;
         public SearchApiClient(HttpClient client, IConfiguration configuration)
         {
             _client = client;
-            BaseAddress = configuration.GetSection("SearchApi").GetValue<string>("url");
+            _baseAddress = configuration.GetSection("SearchApi").GetValue<string>("url");
         }
 
         public async Task<List<AdvertType>> Search(string keyword)
         {
-            var result = new List<AdvertType>();
-            var callUrl = $"{BaseAddress}/search/v1/{keyword}";
-            var httpResponse = await _client.GetAsync(new Uri(callUrl));
+            string callUrl = $"{_baseAddress}/search/v1/{keyword}";
+            HttpResponseMessage httpResponse = await _client.GetAsync(new Uri(callUrl));
 
+            List<AdvertType> result;
             if (httpResponse.StatusCode == HttpStatusCode.OK)
-            {
-                var allAdverts = await httpResponse.Content.ReadAsAsync<List<AdvertType>>();
-                result.AddRange(allAdverts);
-            }
+                result =  await httpResponse.Content.ReadAsAsync<List<AdvertType>>();
+            else
+                result = new List<AdvertType>();
 
             return result;
         }

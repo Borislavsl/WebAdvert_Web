@@ -1,5 +1,5 @@
-﻿using AdvertApi.Models.BS;
-using AutoMapper;
+﻿using AutoMapper;
+using AdvertApi.Models.BS;
 
 namespace WebAdvert_Web.ServiceClients
 {
