@@ -32,8 +32,9 @@ namespace WebAdvert_Web.ServiceClients
 
             string jsonModel = JsonConvert.SerializeObject(advertApiModel);
             HttpResponseMessage response = await _client.PostAsync(new Uri($"{_baseAddress}/create"),
-                                                             new StringContent(jsonModel, Encoding.UTF8, "application/json"));
-            string createAdvertResponse = await response.Content.ReadAsStringAsync();
+                                                                   new StringContent(jsonModel, Encoding.UTF8, "application/json"));
+            jsonModel = await response.Content.ReadAsStringAsync();
+            CreateAdvertResponse createAdvertResponse = JsonConvert.DeserializeObject<CreateAdvertResponse>(jsonModel);
             AdvertResponse advertResponse = _mapper.Map<AdvertResponse>(createAdvertResponse);
 
             return advertResponse;
@@ -44,7 +45,7 @@ namespace WebAdvert_Web.ServiceClients
             ConfirmAdvertModel advertModel = _mapper.Map<ConfirmAdvertModel>(model);
             string jsonModel = JsonConvert.SerializeObject(advertModel);
             HttpResponseMessage response = await _client.PutAsync(new Uri($"{_baseAddress}/confirm"),
-                                                  new StringContent(jsonModel, Encoding.UTF8, "application/json"));
+                                                                  new StringContent(jsonModel, Encoding.UTF8, "application/json"));
                 
             return response.StatusCode == HttpStatusCode.OK;
         }
@@ -53,14 +54,18 @@ namespace WebAdvert_Web.ServiceClients
         {
             HttpResponseMessage apiCallResponse = await _client.GetAsync(new Uri($"{_baseAddress}/all"));
             List<AdvertModel> allAdvertModels = await apiCallResponse.Content.ReadAsAsync<List<AdvertModel>>();
-            return allAdvertModels.Select(x => _mapper.Map<Advertisement>(x)).ToList();
+
+            List<Advertisement> allAdvertisements = allAdvertModels.Select(x => _mapper.Map<Advertisement>(x)).ToList();
+            return allAdvertisements;
         }
 
         public async Task<Advertisement> GetAsync(string advertId)
         {
             HttpResponseMessage apiCallResponse = await _client.GetAsync(new Uri($"{_baseAddress}/{advertId}"));
             AdvertModel fullAdvert = await apiCallResponse.Content.ReadAsAsync<AdvertModel>();
-            return _mapper.Map<Advertisement>(fullAdvert);
+
+            Advertisement advertisement = _mapper.Map<Advertisement>(fullAdvert);
+            return advertisement;
         }
     }
 }

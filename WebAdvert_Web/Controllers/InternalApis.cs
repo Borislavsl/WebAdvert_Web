@@ -23,7 +23,8 @@ namespace WebAdvert.Web.Controllers
         [Authorize]
         public async Task<IActionResult> GetAsync(string id)
         {
-            var record = await _advertApiClient.GetAsync(id);
+            Advertisement record = await _advertApiClient.GetAsync(id);
+
             return Json(record);
         }
     }

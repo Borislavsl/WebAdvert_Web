@@ -2,9 +2,10 @@
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Amazon.Extensions.NETCore.Setup;
 using Amazon.S3;
 using Amazon.S3.Model;
-using Microsoft.Extensions.Configuration;
 
 namespace WebAdvert_Web.Services
 {
@@ -22,14 +23,14 @@ namespace WebAdvert_Web.Services
             if (string.IsNullOrEmpty(fileName))
                 throw new ArgumentException("File name must be specified.");
 
-            var bucketName = _configuration.GetValue<string>("ImageBucket");
-
-            using (var client = new AmazonS3Client())
+            AWSOptions options = _configuration.GetAWSOptions();
+            using (var client = new AmazonS3Client(options.Region))
             {
                 if (storageStream.Length > 0)
                     if (storageStream.CanSeek)
                         storageStream.Seek(0, SeekOrigin.Begin);
 
+                string bucketName = _configuration.GetValue<string>("ImageBucket");
                 var request = new PutObjectRequest
                 {
                     AutoCloseStream = true,

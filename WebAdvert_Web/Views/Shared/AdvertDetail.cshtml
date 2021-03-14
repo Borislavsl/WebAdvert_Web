@@ -1,22 +1,24 @@
-﻿<div class="modal" tabindex="-1" role="dialog" id="detailsModal">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Advertisement Details</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true"></span>
-                </button>
+﻿@model WebAdvert_Web.Models.Home.IndexViewModel
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration configuration
+
+@{ var advertImageUrl = configuration.GetValue<string>("ImageBaseUrl"); }
+
+<div class="row">
+    <div class="col-md-7">
+        <h5 class="alert alert-info">
+            Advertisement Details
+        </h5>
+        <div class="border-dark rounded" id="advertDetailBox">
+            <div style="text-align:center;">
+                @{ var defaultImageUrl = "https://camblycontent.files.wordpress.com/2017/02/advertising-word-block.jpg";
+                    var imageUrl = string.IsNullOrEmpty(Model.Image) ? defaultImageUrl :
+                        $"{advertImageUrl}/{Model.Image}"; }
+                <img src="@imageUrl" id="detailImage" style="width:100%" />
             </div>
-            <div class="modal-body">
-                <div class="border-dark rounded advertDetailBox" id="advertDetailBox">
-                    <div style="text-align:center;" >
-                        <img id="detailImage" class="box-shadow"/>
-                    </div>
-                    <h4 id="detailTitle"></h4>
-                    <p id="detailDesc"></p>
-                    <p id="detailPrice"></p>
-                </div>
-            </div>
-        </div>
+            <h4 id="detailTitle">@Model.Title</h4>
+            <p id="detailDesc">@Model.Description.</p>
+            <p id="detailPrice">Price: $@Model.Price</p>
+        </div>       
     </div>
 </div>

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using WebAdvert_Web.Models;
 using WebAdvert_Web.Models.Home;
 using WebAdvert_Web.ServiceClients;
@@ -28,10 +29,19 @@ namespace WebAdvert.Web.Controllers
         [ResponseCache(Duration = 60)]
         public async Task<IActionResult> Index()
         {
-            var allAds = await ApiClient.GetAllAsync();
-            var allViewModels = allAds.Select(x => Mapper.Map<IndexViewModel>(x));
+            List<Advertisement> allAds = await ApiClient.GetAllAsync();
+            IEnumerable<IndexViewModel> allViewModels = allAds.Select(x => Mapper.Map<IndexViewModel>(x));
 
             return View(allViewModels);
+        }
+        
+        public async Task<IActionResult> AdvertDetail(string id)
+        {
+            Advertisement record = await ApiClient.GetAsync(id);
+
+            IndexViewModel model = Mapper.Map<IndexViewModel>(record);
+
+            return View("AdvertDetail", model);
         }
 
         [HttpPost]
@@ -39,10 +49,10 @@ namespace WebAdvert.Web.Controllers
         {
             var viewModel = new List<SearchViewModel>();
 
-            var searchResult = await SearchApiClient.Search(keyword);
+            List<AdvertType> searchResult = await SearchApiClient.Search(keyword);
             searchResult.ForEach(advertDoc =>
             {
-                var viewModelItem = Mapper.Map<SearchViewModel>(advertDoc);
+                SearchViewModel viewModelItem = Mapper.Map<SearchViewModel>(advertDoc);
                 viewModel.Add(viewModelItem);
             });
 
@@ -54,7 +64,5 @@ namespace WebAdvert.Web.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-
-
     }
 }
