@@ -12,8 +12,8 @@
         <div class="border-dark rounded" id="advertDetailBox">
             <div style="text-align:center;">
                 @{ var defaultImageUrl = "https://camblycontent.files.wordpress.com/2017/02/advertising-word-block.jpg";
-                    var imageUrl = string.IsNullOrEmpty(Model.Image) ? defaultImageUrl :
-                        $"{advertImageUrl}/{Model.Image}"; }
+                    var imageUrl = string.IsNullOrEmpty(Model.FilePath) ? defaultImageUrl :
+                        $"{advertImageUrl}/{Model.FilePath}"; }
                 <img src="@imageUrl" id="detailImage" style="width:100%" />
             </div>
             <h4 id="detailTitle">@Model.Title</h4>
